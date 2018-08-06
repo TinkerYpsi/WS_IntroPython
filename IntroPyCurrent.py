@@ -51,12 +51,9 @@ if accept == "Y" or accept == "y":
         print("Dodge: " + str(enemyDodge))
         print("Firepower: " + str(enemyFirepower))
         print("Luck: " + str(enemyLuck))
-        print("Would you like to flee, dodge, or attack?")
-        option = input("Press [F] for flee, [D] for dodge, or [A] for attack")
     else:
         print("Would you like to flee, dodge, or attack?")
         option = input("Press [F] for flee, [D] for dodge, or [A] for attack")
-
 
 
 
