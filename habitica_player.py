@@ -1,3 +1,6 @@
+import csv
+
+
 def get_index(player, habit):
     location = 0
     for index in player.habits:
@@ -11,13 +14,19 @@ def get_index(player, habit):
 
 
 class Player:
-    def __init__(self, name, health=100, xp=0, habits=[]):
+    def __init__(self, name, health=100, xp=0, habits=[], successes=[], failures=[], consistency=[]):
         self.name = name
         self.health = health
         self.xp = xp
         self.habits = habits
-        self.successes = [0] * len(habits)
-        self.failures = [0] * len(habits)
+        if successes != [] and failures != [] and consistency != []:
+            self.successes = successes
+            self.failures = failures
+            self.consistency = consistency
+        else:
+            self.successes = [0] * len(habits)
+            self.failures = [0] * len(habits)
+            self.consistency = [0] * len(habits)
         self.alive = True
 
     # frequency is number of times per week habit should be done
@@ -39,7 +48,7 @@ class Player:
         health_penalty = 10
         xp_bonus = 5
         xp_penalty = 10
-        if status == True:
+        if status:
             self.successes[index] += 1
             self.xp += xp_bonus
             if self.health + health_bonus >= 100:
@@ -56,6 +65,37 @@ class Player:
                 self.xp = 0
             else:
                 self.health -= health_penalty
+
+    def export_basic_stats(self, filename):
+        header = "Name,Health,XP,Total Success,Total Failure,Overall Consistency"
+        data = ""
+        data += self.name + ","
+        data += str(self.health) + ","
+        data += str(self.xp) + ","
+
+        total_success = 0
+        total_failure = 0
+        for success in self.successes:
+            total_success += success
+        for failure in self.failures:
+            total_failure += failure
+
+        data += str(total_success) + ","
+        data += str(total_failure) + ","
+
+        if total_success + total_failure == 0:
+            consistency = 0
+        else:
+            consistency = total_success / (total_success + total_failure)
+        data += str(consistency)
+
+        with open(filename, 'w+') as file:
+            file.write(header)
+            file.write('\n')
+            for line in data:
+                file.write(line)
+                file.write('\n\n')
+        file.close()
 
     def print_basic_stats(self):
         print("NAME: " + self.name)
@@ -77,17 +117,16 @@ class Player:
             success_ratio = total_success / (total_success + total_failure)
         print("CONSISTENCY: " + str(success_ratio) + "%\n")
 
-    def get_data(self, log_exists=False):
+    def export_details(self, log_exists=False):
         num_habits = len(self.habits)
 
         # adds a header row if log doesn't already exists
         if not log_exists:
             header = "Habit,Successes,Failures,Consistency"
-            data = [None] * num_habits + 1
+            data = [None] * (num_habits + 1)
             data[0] = header
         else:
             data = [None] * num_habits
-
 
         # iterate through all habits
         for habit in self.habits:
@@ -122,3 +161,25 @@ class Player:
                     answered = True
                 else:
                     print("Be sure to type either [Y] or [N] as your answer.")
+
+    def read_log(self, path):
+        try:
+            file = open(path, "r")
+        except FileNotFoundError or FileExistsError as e:
+            print("ERROR READING LOG: A log does not exist at: " + path)
+            return
+
+        reader = csv.reader(file)
+        i = 0
+        for line in reader:
+            if i != 0 and i != 1 and i != 2 and i != 3:
+                habit = line[0]
+                successes = line[1]
+                failures = line[2]
+                consistency = line[3]
+                self.habits.append(habit)
+                self.successes.append(successes)
+                self.failures.append(failures)
+                self.consistency.append(consistency)
+            i += 1
+        file.close()

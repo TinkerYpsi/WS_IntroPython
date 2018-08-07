@@ -20,21 +20,28 @@ def execute_decision(decision):
         print("Incorrect usage!")
         decision = input("Please press [1] to log habits, [2] to add a habit, [3] to see your stats, or [4] to quit:  ")
 
+
 # create new player with 0 XP and no habits
 player = Player("Patrick")
+filename = "habit_log.csv"
+path = "C:/User/Documents/WS_IntroPython/" + filename
+log_exists = os.path.isfile(filename)
+
+if log_exists:
+    # initialize player's stats by reading from existing habit log
+    player.read_log(path)
+
 looping = True
 while looping:
     print("Hi there", player.name)
     decision = input("Please press [1] to log habits, [2] to add a habit, [3] to see your stats, or [4] to quit:  ")
     decision = int(decision)
     execute_decision(decision)
+    # prints player's important stats at top
+    player.export_basic_stats(filename)
 
-    filename = 'habit_log.csv'
-    path = "C:/User/Documents/WS_IntroPython/habit_log.csv"
-    path += str(filename)
-    log_exists = os.path.isfile(filename)
     # data is a List of strings to be written to file
-    data = player.get_data(log_exists)
+    data = player.export_details(log_exists)
 
     # w+ means that we will write to the csv file
     # and create one if 'habit_log.csv' doesn't already exist
@@ -46,7 +53,6 @@ while looping:
             print("Habits logged at: " + path)
         else:
             print("No habits to log :(")
-
     file.close()
 
     print("Nice :)")
