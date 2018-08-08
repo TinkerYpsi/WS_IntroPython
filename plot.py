@@ -32,16 +32,20 @@ class Player:
             print(self.name + "'s " + current_move + " just gained " + str(bonus) + " power!")
             return self
         else:
-            print(opponent.name + " dodged your move!")
+            print(opponent.name + " dodged " + self.name + "'s " + current_move + " move!")
             health_bonus = 7
             if opponent.health + health_bonus > 100:
                 opponent.health = 100
+                print(opponent.name + " has healed to 100 health!")
             else:
                 opponent.health += (health_bonus * 2)
+                print(opponent.name + " has gained " + str(health_bonus * 2) + " health!")
             if self.health + health_bonus > 100:
                 self.health = 100
+                print(self.name + " has healed to 100 health!")
             else:
                 self.health += health_bonus
+                print(self.name + " has gained " + str(health_bonus) + " health!")
             return opponent
 
 
