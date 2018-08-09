@@ -4,3 +4,4 @@
 *.dll
 *.xml
 .idea/workspace.xml
+health_log.csv
