@@ -17,13 +17,44 @@ class Player:
         else:
             self.health -= health_penalty
 
+    def play_attack(self, opponent):
+        index = random.randint(0, len(self.attacks) - 1)
+        current_attack = self.attacks[index]
+        current_strength = self.attack_strengths[index]
 
-attacks = ['lightsaber throw']
-attack_strengths = [15]
+        bonus = 20
+        die_roll = random.randint(1, 20)
+        # Luke wins if he rolls greater than a 5
+        if die_roll > 5:
+            # make's winner's successful move more powerful next turn
+            self.attack_strengths[index] += bonus
+            vader.lose_battle(current_strength)
+            print(self.name + " attacked " + vader.name + " using " + current_attack + "!")
+            print(vader.name + " lost " + str(current_strength) + " health!")
+            print(self.name + "'s " + current_attack + " just gained " + str(bonus) + " power!")
+        else:
+            print(vader.name + " dodged " + self.name + "'s " + current_attack + " attack!")
+            health_bonus = 7
+            if vader.health + health_bonus > 100:
+                vader.health = 100
+                print(vader.name + " has healed to 100 health!")
+            else:
+                vader.health += (health_bonus * 2)
+                print(vader.name + " has gained " + str(health_bonus * 2) + " health!")
+            if self.health + health_bonus > 100:
+                self.health = 100
+                print(self.name + " has healed to 100 health!")
+            else:
+                self.health += health_bonus
+                print(self.name + " has gained " + str(health_bonus) + " health!")
+
+
+attacks = ['lightsaber throw', 'slice', 'fast swing', 'RAGE']
+attack_strengths = [15, 30, 20, 50]
 luke = Player("Luke Skywalker", 100, attacks, attack_strengths)
 
-evil_attacks = ['electrocute']
-evil_attack_strengths = [20]
+evil_attacks = ['electrocute', 'choke', 'evil laugh', 'lightsaber slash']
+evil_attack_strengths = [20, 20, 15, 50]
 vader = Player("Darth Vader", 100, evil_attacks, evil_attack_strengths)
 # vader_health_list will be a list of his health after every attack i.e. [100, 70, 30, 0]
 vader_health_list = [vader.health]
@@ -38,36 +69,9 @@ while luke.alive and vader.alive:
     row = ""                                                    # set row back to empty string every turn
     attack = random.randint(0, 1)                               # random number that is 0 or 1
     if attack == 0:                                             # Luke plays Vader
-        current_attack = luke.attacks[0]
-        current_strength = luke.attack_strengths[0]
-
-        bonus = 20
-        die_roll = random.randint(1, 20)
-        # Luke wins if he rolls greater than a 5
-        if die_roll > 5:
-            # make's winner's successful move more powerful next turn
-            luke.attack_strengths[0] += bonus
-            vader.lose_battle(current_strength)
-            print(luke.name + " attacked " + vader.name + " using " + current_attack + "!")
-            print(vader.name + " lost " + str(current_strength) + " health!")
-            print(luke.name + "'s " + current_attack + " just gained " + str(bonus) + " power!")
-        else:
-            print(vader.name + " dodged " + luke.name + "'s " + current_attack + " attack!")
-            health_bonus = 7
-            if vader.health + health_bonus > 100:
-                vader.health = 100
-                print(vader.name + " has healed to 100 health!")
-            else:
-                vader.health += (health_bonus * 2)
-                print(vader.name + " has gained " + str(health_bonus * 2) + " health!")
-            if luke.health + health_bonus > 100:
-                luke.health = 100
-                print(luke.name + " has healed to 100 health!")
-            else:
-                luke.health += health_bonus
-                print(luke.name + " has gained " + str(health_bonus) + " health!")
+        luke.play_attack(vader)
     else:
-        print("Darth Vader has dodged!")
+        vader.play_attack(luke)
     attack_num += 1
     attack_list.append(attack_num)
     luke_health_list.append(luke.health)
