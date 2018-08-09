@@ -1,2 +1,4 @@
 # ignore all xml
 *.xml
+*.exe
+*.dll
