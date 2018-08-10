@@ -14,19 +14,17 @@ def get_index(player, habit):
 
 
 class Player:
-    def __init__(self, name, health=100, xp=0, habits=[], successes=[], failures=[], consistency=[]):
+    def __init__(self, name, health=100, xp=0):
         self.name = name
         self.health = health
         self.xp = xp
-        self.habits = habits
-        if successes != [] and failures != [] and consistency != []:
-            self.successes = successes
-            self.failures = failures
-            self.consistency = consistency
-        else:
-            self.successes = [0] * len(habits)
-            self.failures = [0] * len(habits)
-            self.consistency = [0] * len(habits)
+        self.habits = []
+        self.successes = []
+        self.failures = []
+        self.consistency = []
+        self.total_success = 0
+        self.total_failure = 0
+        self.total_consistency = 0
         self.alive = True
 
     # frequency is number of times per week habit should be done
@@ -36,9 +34,10 @@ class Player:
         self.habits.append(habit_name)
         self.successes.append(0)
         self.failures.append(0)
+        self.consistency.append(0)
         print("Added habit!")
 
-    def check_habit(self, habit, status):
+    def check_habit(self, habit, success):
         index = get_index(self, habit)
         if index == -1:
             print("ERROR: Habit not found!")
@@ -48,8 +47,11 @@ class Player:
         health_penalty = 10
         xp_bonus = 5
         xp_penalty = 10
-        if status:
+        if success:
             self.successes[index] += 1
+            self.total_success += 1
+            self.update_total_consistency()
+            self.consistency[index] = (self.successes[index] / (self.successes[index] + self.failures[index])) * 100
             self.xp += xp_bonus
             if self.health + health_bonus >= 100:
                 self.health = 100
@@ -59,6 +61,9 @@ class Player:
                 self.health += health_bonus
         else:
             self.failures[index] += 1
+            self.total_failure += 1
+            self.update_total_consistency()
+            self.consistency[index] = (self.failures[index] / (self.successes[index] + self.failures[index])) * 100
             self.xp -= xp_penalty
             if self.health - health_penalty <= 0:
                 self.alive = False
@@ -66,86 +71,111 @@ class Player:
             else:
                 self.health -= health_penalty
 
-    def export_basic_stats(self, filename):
-        header = "Name,Health,XP,Total Success,Total Failure,Overall Consistency"
-        data = ""
-        data += self.name + ","
-        data += str(self.health) + ","
-        data += str(self.xp) + ","
-
-        total_success = 0
-        total_failure = 0
-        for success in self.successes:
-            total_success += success
-        for failure in self.failures:
-            total_failure += failure
-
-        data += str(total_success) + ","
-        data += str(total_failure) + ","
-
-        if total_success + total_failure == 0:
-            consistency = 0
+    def update_total_consistency(self):
+        if self.total_success + self.total_failure == 0:
+            self.total_consistency = 0
         else:
-            consistency = total_success / (total_success + total_failure)
-        data += str(consistency)
+            self.total_consistency = (self.total_success / (self.total_success + self.total_failure)) * 100
 
-        with open(filename, 'w+') as file:
-            file.write(header)
-            file.write('\n')
-            for line in data:
-                file.write(line)
-                file.write('\n\n')
-        file.close()
+    def get_basic_stats(self):
+        header = "Name,Health,XP,Total Success,Total Failure,Overall Consistency"
+        data = [header]
+        row = ""
+        row += self.name + ","
+        row += str(self.health) + ","
+        row += str(self.xp) + ","
+        row += str(self.total_success) + ","
+        row += str(self.total_failure) + ","
+        row += str(self.total_consistency)
+        data.append(row)
+        return data
 
     def print_basic_stats(self):
         print("NAME: " + self.name)
         print("HEALTH: " + str(self.health))
         print("XP: " + str(self.xp))
+        print("TOTAL SUCCESSES: " + str(self.total_success))
+        print("TOTAL FAILURES: " + str(self.total_failure))
+        print("CONSISTENCY: " + str(self.total_consistency) + "%\n")
 
-        total_success = 0
-        total_failure = 0
-        for success in self.successes:
-            total_success += success
-        for failure in self.failures:
-            total_failure += failure
-        print("TOTAL SUCCESSES: " + str(total_success))
-        print("TOTAL FAILURES: " + str(total_failure))
-
-        if total_success + total_failure == 0:
-            success_ratio = 0
-        else:
-            success_ratio = total_success / (total_success + total_failure)
-        print("CONSISTENCY: " + str(success_ratio) + "%\n")
-
-    def export_details(self, log_exists=False):
-        num_habits = len(self.habits)
-
-        # adds a header row if log doesn't already exists
-        if not log_exists:
-            header = "Habit,Successes,Failures,Consistency"
-            data = [None] * (num_habits + 1)
-            data[0] = header
-        else:
-            data = [None] * num_habits
-
+    def get_details(self):
+        header = "Habit,Successes,Failures,Consistency"
+        data = [header]
         # iterate through all habits
         for habit in self.habits:
             i = get_index(self, habit)
             row = ""
-            row += str(habit)
-            row += ","
-            num_successes = self.successes[i]
-            row += str(num_successes)
-            row += ","
-            num_failures = self.failures[i]
-            row += str(num_failures)
-            if num_successes + num_failures == 0:
-                success_ratio = 0
-            else:
-                success_ratio = num_successes / (num_successes + num_failures)
-            row += str(success_ratio)
-            data[i] = row
+            row += str(habit) + ","
+            row += str(self.successes[i]) + ","
+            row += str(self.failures[i]) + ","
+            row += str(self.consistency[i])
+            data.append(row)
+        return data
 
+    def delete_all_habit_data(self):
+        self.habits = []
+        self.successes = []
+        self.failures = []
+        self.consistency = []
+
+    def read_log(self, path):
+        try:
+            file = open(path, "r")
+        except FileNotFoundError or FileExistsError as e:
+            print("A log does not exist at: " + path)
+            return
+
+        reader = csv.reader(file)
+        i = 0
+        habit_data_deleted = False
+
+        for line in reader:
+            if i == 2:
+                header_data = line.split(',')
+                self.name = header_data[0]
+                self.health = header_data[1]
+                self.xp = header_data[2]
+                self.total_success = header_data[3]
+                self.total_failure = header_data[4]
+                self.total_consistency = header_data[5]
+
+            elif i > 2:
+                if not habit_data_deleted:
+                    self.delete_all_habit_data()
+                    habit_data_deleted = True
+                habit = line[0]
+                successes = line[1]
+                failures = line[2]
+                consistency = line[3]
+                self.habits.append(habit)
+                self.successes.append(successes)
+                self.failures.append(failures)
+                self.consistency.append(consistency)
+
+            i += 1
+        file.close()
+
+    def export_data(self, filename):
+        data = self.get_basic_stats()
+        header = data[0]
+        header_data = data[1]
+        details = self.get_details()
+
+        with open(filename, 'w+') as file:
+            file.write(header)
+            file.write('\n')
+            file.write(header_data)
+            file.write('\n\n')
+
+            for line in details:
+                file.write(line)
+                file.write('\n')
+            if len(details) > 1:                       # if there's more than just the header line
+                print("Habits logged!")
+            else:
+                print("No habits to log :(")
+
+        file.close()
         return data
 
     def log_habits(self):
@@ -162,24 +192,3 @@ class Player:
                 else:
                     print("Be sure to type either [Y] or [N] as your answer.")
 
-    def read_log(self, path):
-        try:
-            file = open(path, "r")
-        except FileNotFoundError or FileExistsError as e:
-            print("ERROR READING LOG: A log does not exist at: " + path)
-            return
-
-        reader = csv.reader(file)
-        i = 0
-        for line in reader:
-            if i != 0 and i != 1 and i != 2 and i != 3:
-                habit = line[0]
-                successes = line[1]
-                failures = line[2]
-                consistency = line[3]
-                self.habits.append(habit)
-                self.successes.append(successes)
-                self.failures.append(failures)
-                self.consistency.append(consistency)
-            i += 1
-        file.close()
