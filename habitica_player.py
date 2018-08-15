@@ -1,5 +1,5 @@
 import csv
-
+import time
 
 def get_index(player, habit):
     location = 0
@@ -11,6 +11,7 @@ def get_index(player, habit):
 
     # sentinel to indicate that 'habit' is not in the player's list of habits
     return -1
+
 
 
 class Player:
@@ -130,23 +131,22 @@ class Player:
         habit_data_deleted = False
 
         for line in reader:
-            if i == 2:
-                header_data = line.split(',')
-                self.name = header_data[0]
-                self.health = header_data[1]
-                self.xp = header_data[2]
-                self.total_success = header_data[3]
-                self.total_failure = header_data[4]
-                self.total_consistency = header_data[5]
+            if i == 1:
+                self.name = line[0]
+                self.health = int(line[1])
+                self.xp = int(line[2])
+                self.total_success = int(line[3])
+                self.total_failure = int(line[4])
+                self.total_consistency = float(line[5])
 
-            elif i > 2:
+            elif i > 3:
                 if not habit_data_deleted:
                     self.delete_all_habit_data()
                     habit_data_deleted = True
                 habit = line[0]
-                successes = line[1]
-                failures = line[2]
-                consistency = line[3]
+                successes = int(line[1])
+                failures = int(line[2])
+                consistency = float(line[3])
                 self.habits.append(habit)
                 self.successes.append(successes)
                 self.failures.append(failures)

@@ -1,5 +1,6 @@
 Name,Health,XP,Total Success,Total Failure,Overall Consistency
-Patrick,100,10,1,0,100.0
+Patrick,100,40,4,0,100.0
 
 Habit,Successes,Failures,Consistency
-Bike 10 miles,1,0,100.0
+Bike 10 miles,3,0,100.0
+Drink green tea,1,0,100.0
