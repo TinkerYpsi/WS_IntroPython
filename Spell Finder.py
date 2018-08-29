@@ -11,9 +11,9 @@ fireball.name = 'fireball'
 fireball.ingredients = {'potato', 'magic water'}
 fireball.power = 10
 
-print("Spell Name: ", fireball.name)
-print("Ingredients: ", fireball.ingredients)
-print("Power: ", fireball.power)
+print("Spell Name:", fireball.name)
+print("Ingredients:", fireball.ingredients)
+print("Power:", fireball.power)
 
 
 # ************** Initialize variables upon creation **************
@@ -27,9 +27,9 @@ class Spell(object):
 
 lightning = Spell('lightning', {'newt', 'sandbag'}, 15)
 
-print("\nSpell Name: ", lightning.name)
-print("Ingredients: ", lightning.ingredients)
-print("Power: ", lightning.power)
+print("\nSpell Name:", lightning.name)
+print("Ingredients:", lightning.ingredients)
+print("Power:", lightning.power)
 
 
 # **************  Add a class function **************
@@ -41,9 +41,9 @@ class Spell(object):
         self.power = power
 
     def print_info(self):
-        print("\nSpell Name: ", self.name)
-        print("Ingredients: ", self.ingredients)
-        print("Power: ", self.power)
+        print("\nSpell Name:", self.name)
+        print("Ingredients:", self.ingredients)
+        print("Power:", self.power)
 
 
 freeze = Spell('freeze', {'belly button lint', 'magic water'}, 5)
