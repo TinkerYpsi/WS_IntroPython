@@ -44,7 +44,11 @@ print("\nThings in my wooden chest:")
 for item in woodenChest:
     print(item)
 
-# Print just the first two items in the utility belt
+# Print the second item in the utility belt
+print("\nThe first item in the utility belt is:")
+print(utilityBelt[1])
+
+# Print the first two items in the utility belt
 print("\nFirst two items in the utility belt:")
 # To do this, we pick an iterator variable (can be called anything, but we'll call it "i"),
 # and we'll have  increment within a specified range. The "for" loop will execute while the
